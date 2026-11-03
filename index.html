@@ -20,7 +20,13 @@
                 <span class="text-2xl">🧠</span>
                 <h1 class="text-base md:text-lg font-bold text-slate-800">ProClinic Clinical Dashboard</h1>
             </div>
-            <span id="user-badge" class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-semibold hidden"></span>
+            <div class="flex items-center space-x-3">
+                <span id="user-badge" class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-semibold hidden"></span>
+                <!-- Tombol Keluar Global di Header (Muncul Saat Sedang Tes/Masuk) -->
+                <button onclick="logout()" id="header-logout-btn" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer hidden">
+                    Keluar 🚪
+                </button>
+            </div>
         </div>
     </header>
 
@@ -53,11 +59,13 @@
 
         <!-- QUIZ SCREEN (60 SOAL DALAM SATU HALAMAN) -->
         <div id="quiz-screen" class="hidden space-y-6">
-            <div class="bg-indigo-900 text-white rounded-3xl p-6 shadow-md">
-                <h2 id="greeting-title" class="text-xl font-bold mb-1">Halo!</h2>
-                <p class="text-indigo-200 text-xs leading-relaxed">
-                    Kuesioner ini terdiri dari 60 pernyataan mendalam mengenai keseharianmu. Baca baik-baik dan pilih jawaban yang paling jujur (Selalu, Sering, Kadang-kadang, Jarang, Tidak Pernah). Jawablah seluruhnya, lalu klik tombol **Kirim Jawaban** di bagian paling bawah.
-                </p>
+            <div class="bg-indigo-900 text-white rounded-3xl p-6 shadow-md flex justify-between items-start">
+                <div>
+                    <h2 id="greeting-title" class="text-xl font-bold mb-1">Halo!</h2>
+                    <p class="text-indigo-200 text-xs leading-relaxed">
+                        Kuesioner ini terdiri dari 60 pernyataan mendalam mengenai keseharianmu. Baca baik-baik dan pilih jawaban yang paling jujur (Selalu, Sering, Kadang-kadang, Jarang, Tidak Pernah). Jawablah seluruhnya, lalu klik tombol **Kirim Jawaban** di bagian paling bawah.
+                    </p>
+                </div>
             </div>
 
             <!-- Form Container -->
@@ -67,8 +75,11 @@
                 </div>
 
                 <!-- Tombol Kirim di Bawah -->
-                <div class="pt-4">
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-emerald-100 text-base cursor-pointer">
+                <div class="pt-4 flex space-x-3">
+                    <button type="button" onclick="logout()" class="w-1/3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-4 rounded-2xl transition text-sm cursor-pointer">
+                        Batal / Keluar
+                    </button>
+                    <button type="submit" class="w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-emerald-100 text-base cursor-pointer">
                         Kirim Jawaban & Selesaikan Tes (60 Soal) 📤
                     </button>
                 </div>
@@ -206,8 +217,9 @@
         const resultScreen = document.getElementById('result-screen');
         const adminScreen = document.getElementById('admin-screen');
         const userBadge = document.getElementById('user-badge');
+        const headerLogoutBtn = document.getElementById('header-logout-btn');
 
-        // Cek Sesi Tersimpan saat halaman dimuat (Mencegah hilang saat refresh)
+        // Cek Sesi Tersimpan saat halaman dimuat
         window.addEventListener('DOMContentLoaded', () => {
             const savedSession = localStorage.getItem('proclinic_current_session');
             if (savedSession) {
@@ -218,6 +230,7 @@
                     adminScreen.classList.remove('hidden');
                     userBadge.innerText = "🔑 Mode Orang Tua/Guru";
                     userBadge.classList.remove('hidden');
+                    headerLogoutBtn.classList.remove('hidden');
                     loadAdminFolders();
                 } else if (session.state === 'quiz') {
                     loginScreen.classList.add('hidden');
@@ -225,12 +238,14 @@
                     document.getElementById('greeting-title').innerText = `Halo, ${currentUser.nama} (${currentUser.kelas})! 👋`;
                     userBadge.innerText = `${currentUser.nama} - ${currentUser.kelas}`;
                     userBadge.classList.remove('hidden');
+                    headerLogoutBtn.classList.remove('hidden');
                     renderAll60Questions();
                 } else if (session.state === 'result') {
                     loginScreen.classList.add('hidden');
                     resultScreen.classList.remove('hidden');
                     userBadge.innerText = `${currentUser.nama} - ${currentUser.kelas}`;
                     userBadge.classList.remove('hidden');
+                    headerLogoutBtn.classList.remove('hidden');
                 }
             }
         });
@@ -252,6 +267,7 @@
                 adminScreen.classList.remove('hidden');
                 userBadge.innerText = "🔑 Mode Orang Tua/Guru";
                 userBadge.classList.remove('hidden');
+                headerLogoutBtn.classList.remove('hidden');
                 loadAdminFolders();
                 return;
             }
@@ -262,6 +278,7 @@
             document.getElementById('greeting-title').innerText = `Halo, ${nama} (${kelas})! 👋`;
             userBadge.innerText = `${nama} - ${kelas}`;
             userBadge.classList.remove('hidden');
+            headerLogoutBtn.classList.remove('hidden');
 
             renderAll60Questions();
         }
@@ -361,7 +378,6 @@
             let suggestions = [];
             let generalConclusions = [];
 
-            // Alur Bertahap 1: Analisis Detail per Domain Terlebih Dahulu
             let sScore = domainScores["Stres & Kecemasan"];
             if (sScore >= 28) {
                 clinicalAnalysis.push("🔴 <strong>Stres & Kecemasan:</strong> Terdeteksi reaktivitas kecemasan tinggi. Anak mengalami beban psikosomatis atau tekanan ekspektasi yang cukup menguras energi mental.");
@@ -428,7 +444,6 @@
                 clinicalAnalysis.push("🟢 <strong>Sosial & Kepercayaan Diri:</strong> Konsep diri positif, percaya diri tinggi, dan keterampilan sosial baik.");
             }
 
-            // Alur Bertahap 2: Baru Ditutup dengan Kesimpulan Umum
             if (scoreIndex >= 75) {
                 generalConclusions.push("Secara menyeluruh, profil psikososial anak sangat seimbang, matang, dan menunjukkan adaptasi yang sangat positif.");
             } else if (scoreIndex >= 45) {
@@ -650,6 +665,7 @@
             document.getElementById('input-nama').value = "";
             document.getElementById('input-kelas').value = "";
             userBadge.classList.add('hidden');
+            headerLogoutBtn.classList.add('hidden');
             
             adminScreen.classList.add('hidden');
             resultScreen.classList.add('hidden');
