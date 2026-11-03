@@ -132,15 +132,24 @@
 
         <!-- HALAMAN KHUSUS DETAIL LAPORAN ANAK -->
         <div id="admin-detail-screen" class="hidden space-y-6">
-            <div class="sticky top-20 z-40 bg-white/95 backdrop-blur-md rounded-2xl shadow-md p-4 border border-indigo-100 flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <span class="text-2xl">👤</span>
-                    <div>
-                        <span class="text-[10px] uppercase font-bold text-indigo-600 tracking-wider block">Laporan Aktif</span>
-                        <h3 id="detail-header-title" class="text-base md:text-lg font-extrabold text-slate-900"></h3>
+            <!-- Sticky Header dengan Tombol Kembali di Bawah Nama Anak -->
+            <div class="sticky top-20 z-40 bg-white/95 backdrop-blur-md rounded-2xl shadow-md p-4 border border-indigo-100 flex flex-col space-y-3">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">👤</span>
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-indigo-600 tracking-wider block">Laporan Aktif</span>
+                            <h3 id="detail-header-title" class="text-base md:text-lg font-extrabold text-slate-900"></h3>
+                        </div>
                     </div>
+                    <span id="detail-header-badge" class="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-xs"></span>
                 </div>
-                <span id="detail-header-badge" class="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-xs"></span>
+                <!-- Tombol Kembali ke Daftar (Tepat di bawah nama anak) -->
+                <div>
+                    <button onclick="backToAdminList()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center space-x-2 border border-slate-200">
+                        <span>← Kembali ke Daftar Kartu</span>
+                    </button>
+                </div>
             </div>
 
             <div id="detail-content-area" class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-slate-100 space-y-5">
@@ -240,21 +249,7 @@
         const userBadge = document.getElementById('user-badge');
         const headerLogoutBtn = document.getElementById('header-logout-btn');
 
-        // Sinkronisasi Tombol Back HP secara presisi
-        window.addEventListener('popstate', (event) => {
-            const savedSession = JSON.parse(localStorage.getItem('proclinic_current_session'));
-            if (savedSession && savedSession.state === 'admin_detail') {
-                // Jika sedang di detail anak, tombol back mengembalikan ke daftar admin
-                backToAdminList(false);
-            }
-        });
-
         window.addEventListener('DOMContentLoaded', () => {
-            // Daftarkan state awal ke history agar tombol back HP aman
-            if (!history.state) {
-                history.replaceState({ page: 'root' }, '');
-            }
-
             const savedSession = localStorage.getItem('proclinic_current_session');
             if (savedSession) {
                 const session = JSON.parse(savedSession);
@@ -410,7 +405,7 @@
                 "Sosial & Kepercayaan Diri": 0
             };
 
-            let domainMaxPoints = 40; // 10 soal x bobot max 4
+            let domainMaxPoints = 40;
 
             answers.forEach(a => {
                 totalScore += a.weight;
@@ -419,7 +414,6 @@
                 }
             });
 
-            // Konversi nilai tiap domain secara presisi ke skala 0 - 100
             let domainScores100 = {};
             for (let domain in rawDomainScores) {
                 domainScores100[domain] = Math.round((rawDomainScores[domain] / domainMaxPoints) * 100);
@@ -585,7 +579,7 @@
 
                 folderBox.innerHTML = `
                     <!-- HEADER KARTU (HANYA NAMA - KELAS SAJA) -->
-                    <div class="flex justify-between items-center p-4 bg-slate-50 hover:bg-indigo-50/50 transition cursor-pointer rounded-2xl" onclick="openAdminDetail('${safeName}', true)">
+                    <div class="flex justify-between items-center p-4 bg-slate-50 hover:bg-indigo-50/50 transition cursor-pointer rounded-2xl" onclick="openAdminDetail('${safeName}')">
                         <div class="flex items-center space-x-3">
                             <span class="text-2xl">📁</span>
                             <div>
@@ -633,7 +627,7 @@
             loadAdminFolders();
         }
 
-        function openAdminDetail(folderName, pushState = true) {
+        function openAdminDetail(folderName) {
             let records = JSON.parse(localStorage.getItem('psikologi_proclinic60_folders')) || [];
             let rec = records.find(r => r.folderName.toLowerCase() === folderName.toLowerCase());
             if (!rec) return;
@@ -641,10 +635,6 @@
             isViewingDetail = true;
             selectedChildName = rec.folderName;
             saveSession('admin_detail');
-
-            if (pushState) {
-                history.pushState({ detailOpen: true, child: rec.folderName }, '');
-            }
 
             document.getElementById('detail-header-title').innerText = rec.folderName;
             document.getElementById('detail-header-badge').innerText = `Indeks Skor: ${rec.scoreIndex}%`;
@@ -704,15 +694,15 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function backToAdminList(pushState = true) {
+        // Kembali ke Daftar Kartu Admin via Tombol Khusus di Bawah Nama
+        function backToAdminList() {
             isViewingDetail = false;
             selectedChildName = null;
             saveSession('admin');
             adminDetailScreen.classList.add('hidden');
             adminScreen.classList.remove('hidden');
-            if (pushState) {
-                history.pushState({ page: 'root' }, '');
-            }
+            loadAdminFolders();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function toggleDropdown(event, safeId) {
