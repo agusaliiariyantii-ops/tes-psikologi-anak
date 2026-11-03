@@ -22,7 +22,6 @@
             </div>
             <div class="flex items-center space-x-3">
                 <span id="user-badge" class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-semibold hidden"></span>
-                <!-- Tombol Keluar Global di Header (Muncul Saat Sedang Tes/Masuk) -->
                 <button onclick="logout()" id="header-logout-btn" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer hidden">
                     Keluar 🚪
                 </button>
@@ -57,36 +56,29 @@
             <p class="text-center text-[11px] text-slate-400 mt-4">*Akses Orang Tua/Guru: Ketik 'admin' pada nama dan kelas.</p>
         </div>
 
-        <!-- QUIZ SCREEN (60 SOAL DALAM SATU HALAMAN) -->
+        <!-- QUIZ SCREEN -->
         <div id="quiz-screen" class="hidden space-y-6">
-            <div class="bg-indigo-900 text-white rounded-3xl p-6 shadow-md flex justify-between items-start">
-                <div>
-                    <h2 id="greeting-title" class="text-xl font-bold mb-1">Halo!</h2>
-                    <p class="text-indigo-200 text-xs leading-relaxed">
-                        Kuesioner ini terdiri dari 60 pernyataan mendalam mengenai keseharianmu. Baca baik-baik dan pilih jawaban yang paling jujur (Selalu, Sering, Kadang-kadang, Jarang, Tidak Pernah). Jawablah seluruhnya, lalu klik tombol **Kirim Jawaban** di bagian paling bawah.
-                    </p>
-                </div>
+            <div class="bg-indigo-900 text-white rounded-3xl p-6 shadow-md">
+                <h2 id="greeting-title" class="text-xl font-bold mb-1">Halo!</h2>
+                <p class="text-indigo-200 text-xs leading-relaxed">
+                    Kuesioner ini terdiri dari 60 pernyataan mendalam mengenai keseharianmu. Baca baik-baik dan pilih jawaban yang paling jujur. Jawablah seluruhnya, lalu klik tombol **Kirim Jawaban** di bagian paling bawah[cite: 2].
+                </p>
             </div>
 
-            <!-- Form Container -->
             <form id="assessment-form" onsubmit="submitAssessment(event)" class="space-y-4">
                 <div id="questions-list-container" class="space-y-4">
                     <!-- 60 Soal dirender otomatis via JS -->
                 </div>
 
-                <!-- Tombol Kirim di Bawah -->
-                <div class="pt-4 flex space-x-3">
-                    <button type="button" onclick="logout()" class="w-1/3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-4 rounded-2xl transition text-sm cursor-pointer">
-                        Batal / Keluar
-                    </button>
-                    <button type="submit" class="w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-emerald-100 text-base cursor-pointer">
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-emerald-100 text-base cursor-pointer">
                         Kirim Jawaban & Selesaikan Tes (60 Soal) 📤
                     </button>
                 </div>
             </form>
         </div>
 
-        <!-- RESULT SCREEN (UNTUK ANAK) -->
+        <!-- RESULT SCREEN -->
         <div id="result-screen" class="bg-white rounded-3xl shadow-xl p-8 text-center hidden border border-slate-100 max-w-lg mx-auto mt-10">
             <div class="text-6xl mb-3 animate-bounce">🏆</div>
             <h2 class="text-2xl font-bold text-slate-800 mb-2">Luar Biasa, Selesai!</h2>
@@ -98,7 +90,7 @@
             </button>
         </div>
 
-        <!-- ADMIN DASHBOARD (UNTUK ORANG TUA / GURU) -->
+        <!-- ADMIN DASHBOARD -->
         <div id="admin-screen" class="bg-white rounded-3xl shadow-xl p-6 md:p-8 hidden border border-slate-100">
             <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
                 <div>
@@ -110,7 +102,7 @@
                 </button>
             </div>
 
-            <!-- Tab Navigasi Admin (Aktif / Arsip) -->
+            <!-- Tab Navigasi Admin -->
             <div class="flex space-x-2 mb-4 border-b border-slate-100 pb-3">
                 <button onclick="switchAdminTab('active')" id="tab-active" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white transition cursor-pointer">
                     📂 Laporan Aktif
@@ -120,7 +112,7 @@
                 </button>
             </div>
 
-            <!-- List Folder Siswa (Tertutup Default) -->
+            <!-- List Folder Siswa -->
             <div id="admin-folders-container" class="space-y-4 mb-6 max-h-[700px] overflow-y-auto pr-2">
                 <!-- Folder dinamis -->
             </div>
@@ -211,6 +203,7 @@
 
         let currentUser = { nama: "", kelas: "" };
         let currentAdminTab = 'active';
+        let activeCardId = null; // Menyimpan status kartu mana yang sedang dibuka
 
         const loginScreen = document.getElementById('login-screen');
         const quizScreen = document.getElementById('quiz-screen');
@@ -219,7 +212,18 @@
         const userBadge = document.getElementById('user-badge');
         const headerLogoutBtn = document.getElementById('header-logout-btn');
 
-        // Cek Sesi Tersimpan saat halaman dimuat
+        // Pengaturan Tombol Kembali (Back) HP agar menutup kartu detail dulu sebelum keluar admin
+        window.addEventListener('popstate', (event) => {
+            if (activeCardId) {
+                // Jika ada kartu detail yang terbuka, tutup kartunya saja
+                const detailDiv = document.getElementById(`detail_${activeCardId}`);
+                if (detailDiv) detailDiv.classList.add('hidden');
+                activeCardId = null;
+                // Cegah keluar halaman
+                history.pushState(null, '', window.location.href);
+            }
+        });
+
         window.addEventListener('DOMContentLoaded', () => {
             const savedSession = localStorage.getItem('proclinic_current_session');
             if (savedSession) {
@@ -520,20 +524,16 @@
                 let safeId = rec.folderName.replace(/[^a-zA-Z0-9]/g, '_');
 
                 folderBox.innerHTML = `
-                    <!-- HEADER KARTU (TERTUTUP DEFAULT) -->
+                    <!-- HEADER KARTU (HANYA NAMA - KELAS SAJA DI LUAR) -->
                     <div class="flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100 transition cursor-pointer border-b border-slate-100" onclick="toggleCardDetail('${safeId}')">
                         <div class="flex items-center space-x-3">
                             <span class="text-2xl">📁</span>
                             <div>
                                 <h3 class="font-bold text-slate-800 text-base">${rec.folderName}</h3>
-                                <span class="text-[10px] text-slate-400">Waktu Tes: ${rec.tanggal} &bull; <strong class="text-indigo-600">Klik untuk buka detail 🔍</strong></span>
+                                <span class="text-[10px] text-slate-400">Klik untuk melihat detail laporan 🔍</span>
                             </div>
                         </div>
                         <div class="flex items-center space-x-3" onclick="event.stopPropagation()">
-                            <div class="text-right">
-                                <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-semibold block">Indeks: ${rec.scoreIndex}%</span>
-                            </div>
-
                             <div class="relative">
                                 <button onclick="toggleDropdown(event, '${rec.folderName}')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-2 rounded-xl text-sm transition cursor-pointer" title="Menu Opsi">
                                     ⋮
@@ -550,8 +550,14 @@
                         </div>
                     </div>
 
-                    <!-- KONTEN DETAIL (TERSEMBUNYI HINGGA DIKLIK) -->
-                    <div id="detail_${safeId}" class="hidden p-5 space-y-4 bg-white">
+                    <!-- KONTEN DETAIL (TANGGAL, INDEKS, & ANALISIS DI DALAM KARTU) -->
+                    <div id="detail_${safeId}" class="hidden p-5 space-y-4 bg-white border-t border-slate-100">
+                        <!-- Info Tanggal & Indeks Skor -->
+                        <div class="flex justify-between items-center bg-indigo-50/50 p-3 rounded-xl border border-indigo-100">
+                            <span class="text-xs text-slate-600">📅 Waktu Pengisian: <strong>${rec.tanggal}</strong></span>
+                            <span class="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-bold">Indeks Skor: ${rec.scoreIndex}%</span>
+                        </div>
+
                         <!-- 1. Skor Aspek per Domain -->
                         <div>
                             <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">1. Skor Aspek Psikososial (Maks. 40)</h4>
@@ -596,7 +602,18 @@
 
         function toggleCardDetail(safeId) {
             const detailDiv = document.getElementById(`detail_${safeId}`);
-            detailDiv.classList.toggle('hidden');
+            const isHidden = detailDiv.classList.contains('hidden');
+            
+            // Sembunyikan semua kartu lain dulu agar rapi
+            document.querySelectorAll("[id^='detail_']").forEach(el => el.classList.add('hidden'));
+
+            if (isHidden) {
+                detailDiv.classList.remove('hidden');
+                activeCardId = safeId;
+                history.pushState({ cardOpen: true }, '', window.location.href);
+            } else {
+                activeCardId = null;
+            }
         }
 
         function toggleDropdown(event, folderName) {
