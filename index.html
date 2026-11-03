@@ -240,25 +240,21 @@
         const userBadge = document.getElementById('user-badge');
         const headerLogoutBtn = document.getElementById('header-logout-btn');
 
-        // Navigasi Tombol Kembali (Back) HP otomatis menutup detail laporan kembali ke daftar
+        // Sinkronisasi Tombol Back HP secara presisi
         window.addEventListener('popstate', (event) => {
-            if (isViewingDetail) {
-                isViewingDetail = false;
-                selectedChildName = null;
-                saveSession('admin');
-                adminDetailScreen.classList.add('hidden');
-                adminScreen.classList.remove('hidden');
-            } else {
-                let savedSession = JSON.parse(localStorage.getItem('proclinic_current_session'));
-                if (savedSession && savedSession.state === 'admin_detail') {
-                    saveSession('admin');
-                    adminDetailScreen.classList.add('hidden');
-                    adminScreen.classList.remove('hidden');
-                }
+            const savedSession = JSON.parse(localStorage.getItem('proclinic_current_session'));
+            if (savedSession && savedSession.state === 'admin_detail') {
+                // Jika sedang di detail anak, tombol back mengembalikan ke daftar admin
+                backToAdminList(false);
             }
         });
 
         window.addEventListener('DOMContentLoaded', () => {
+            // Daftarkan state awal ke history agar tombol back HP aman
+            if (!history.state) {
+                history.replaceState({ page: 'root' }, '');
+            }
+
             const savedSession = localStorage.getItem('proclinic_current_session');
             if (savedSession) {
                 const session = JSON.parse(savedSession);
@@ -647,7 +643,7 @@
             saveSession('admin_detail');
 
             if (pushState) {
-                history.pushState({ detailOpen: true }, '', window.location.href);
+                history.pushState({ detailOpen: true, child: rec.folderName }, '');
             }
 
             document.getElementById('detail-header-title').innerText = rec.folderName;
@@ -706,6 +702,17 @@
             adminScreen.classList.add('hidden');
             adminDetailScreen.classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function backToAdminList(pushState = true) {
+            isViewingDetail = false;
+            selectedChildName = null;
+            saveSession('admin');
+            adminDetailScreen.classList.add('hidden');
+            adminScreen.classList.remove('hidden');
+            if (pushState) {
+                history.pushState({ page: 'root' }, '');
+            }
         }
 
         function toggleDropdown(event, safeId) {
