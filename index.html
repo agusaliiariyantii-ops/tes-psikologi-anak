@@ -61,7 +61,7 @@
             <div class="bg-indigo-900 text-white rounded-3xl p-6 shadow-md">
                 <h2 id="greeting-title" class="text-xl font-bold mb-1">Halo!</h2>
                 <p class="text-indigo-200 text-xs leading-relaxed">
-                    Kuesioner ini terdiri dari 60 pernyataan mendalam mengenai keseharianmu. Baca baik-baik dan pilih jawaban yang paling jujur. Jawablah seluruhnya, lalu klik tombol **Kirim Jawaban** di bagian paling bawah[cite: 2].
+                    Kuesioner ini terdiri dari 60 pernyataan mendalam mengenai keseharianmu[cite: 6]. Baca baik-baik dan pilih jawaban yang paling jujur. Jawablah seluruhnya, lalu klik tombol **Kirim Jawaban** di bagian paling bawah[cite: 2, 6].
                 </p>
             </div>
 
@@ -83,19 +83,19 @@
             <div class="text-6xl mb-3 animate-bounce">🏆</div>
             <h2 class="text-2xl font-bold text-slate-800 mb-2">Luar Biasa, Selesai!</h2>
             <p class="text-slate-600 text-sm mb-6 leading-relaxed">
-                Terima kasih sudah meluangkan waktu menjawab 60 pertanyaan ini dengan teliti dan jujur. Hasil asesmenmu sudah tersimpan rapi di sistem untuk ditinjau oleh orang tua atau gurumu.
+                Terima kasih sudah meluangkan waktu menjawab 60 pertanyaan ini dengan teliti dan jujur. Hasil asesmenmu sudah tersimpan rapi di sistem untuk ditinjau oleh orang tua atau gurumu[cite: 6].
             </p>
             <button onclick="logout()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-2xl transition shadow-lg shadow-indigo-100 cursor-pointer">
                 Selesai & Keluar 🚪
             </button>
         </div>
 
-        <!-- ADMIN DASHBOARD (DAFTAR KARTU) -->
+        <!-- ADMIN DASHBOARD (DAFTAR KARTU DENGAN PAGINATION MAKS 10) -->
         <div id="admin-screen" class="bg-white rounded-3xl shadow-xl p-6 md:p-8 hidden border border-slate-100">
             <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
                 <div>
                     <h2 class="text-xl font-bold text-slate-800">🔒 Dashboard Laporan Klinis Terpusat</h2>
-                    <p class="text-xs text-slate-500">Klik pada kartu nama siswa di bawah untuk masuk ke halaman detail laporan psikososial.</p>
+                    <p class="text-xs text-slate-500">Klik pada kartu nama siswa di bawah untuk masuk ke halaman detail laporan psikososial[cite: 6].</p>
                 </div>
                 <button onclick="logout()" class="bg-rose-50 text-rose-600 hover:bg-rose-100 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer">
                     Keluar Admin
@@ -113,20 +113,25 @@
             </div>
 
             <!-- List Folder Siswa -->
-            <div id="admin-folders-container" class="space-y-4 mb-6 max-h-[700px] overflow-y-auto pr-2">
+            <div id="admin-folders-container" class="space-y-4 mb-4 pr-2">
                 <!-- Folder dinamis -->
             </div>
 
-            <div class="flex space-x-3">
-                <button onclick="clearAllAdminData()" class="w-full border border-rose-200 text-rose-600 hover:bg-rose-50 font-semibold py-2.5 rounded-2xl text-xs transition cursor-pointer">
-                    Hapus Seluruh Data Aktif 🗑️
+            <!-- Navigasi Halaman (Pagination) -->
+            <div id="pagination-container" class="flex justify-between items-center pt-3 border-t border-slate-100 mb-6">
+                <!-- Tombol Navigasi Halaman -->
+            </div>
+
+            <!-- Tombol Hapus Seluruh Data Hanya di Tab Arsip -->
+            <div id="admin-action-footer" class="hidden">
+                <button onclick="clearAllArchivedData()" class="w-full border border-rose-200 text-rose-600 hover:bg-rose-50 font-semibold py-2.5 rounded-2xl text-xs transition cursor-pointer">
+                    Hapus Seluruh Data Arsip Permanen 🗑️
                 </button>
             </div>
         </div>
 
-        <!-- HALAMAN KHUSUS DETAIL LAPORAN ANAK (DENGAN STICKY HEADER NAMA ANAK) -->
+        <!-- HALAMAN KHUSUS DETAIL LAPORAN ANAK -->
         <div id="admin-detail-screen" class="hidden space-y-6">
-            <!-- Header Mengambang (Sticky) agar nama anak selalu terlihat saat di-scroll -->
             <div class="sticky top-20 z-40 bg-white/95 backdrop-blur-md rounded-2xl shadow-md p-4 border border-indigo-100 flex justify-between items-center">
                 <div class="flex items-center space-x-3">
                     <span class="text-2xl">👤</span>
@@ -138,7 +143,6 @@
                 <span id="detail-header-badge" class="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-xs"></span>
             </div>
 
-            <!-- Konten Lengkap Laporan -->
             <div id="detail-content-area" class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-slate-100 space-y-5">
                 <!-- Konten dinamis laporan anak -->
             </div>
@@ -225,6 +229,8 @@
         let currentAdminTab = 'active';
         let isViewingDetail = false;
         let selectedChildName = null;
+        let currentPage = 1;
+        const itemsPerPage = 10;
 
         const loginScreen = document.getElementById('login-screen');
         const quizScreen = document.getElementById('quiz-screen');
@@ -234,7 +240,6 @@
         const userBadge = document.getElementById('user-badge');
         const headerLogoutBtn = document.getElementById('header-logout-btn');
 
-        // Navigasi Tombol Kembali (Back) HP otomatis menutup detail laporan kembali ke daftar
         window.addEventListener('popstate', (event) => {
             if (isViewingDetail) {
                 backToAdminList(false);
@@ -515,32 +520,46 @@
 
         function switchAdminTab(tab) {
             currentAdminTab = tab;
+            currentPage = 1; // Reset ke halaman 1 saat pindah tab
             const btnActive = document.getElementById('tab-active');
             const btnArchived = document.getElementById('tab-archived');
+            const actionFooter = document.getElementById('admin-action-footer');
 
             if (tab === 'active') {
                 btnActive.className = "px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white transition cursor-pointer";
                 btnArchived.className = "px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition cursor-pointer";
+                actionFooter.classList.add('hidden');
             } else {
                 btnArchived.className = "px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white transition cursor-pointer";
                 btnActive.className = "px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition cursor-pointer";
+                actionFooter.classList.remove('hidden');
             }
             loadAdminFolders();
         }
 
         function loadAdminFolders() {
             const container = document.getElementById('admin-folders-container');
+            const paginationContainer = document.getElementById('pagination-container');
             let records = JSON.parse(localStorage.getItem('psikologi_proclinic60_folders')) || [];
 
             let filteredRecords = records.filter(r => currentAdminTab === 'archived' ? r.isArchived : !r.isArchived);
 
             if (filteredRecords.length === 0) {
                 container.innerHTML = `<div class="text-center py-12 text-slate-400 text-xs">Belum ada folder laporan ${currentAdminTab === 'archived' ? 'di dalam arsip' : 'aktif'} yang tersimpan.</div>`;
+                paginationContainer.innerHTML = '';
                 return;
             }
 
+            // Hitung Pagination (Maks 10 per halaman)
+            let totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            let startIndex = (currentPage - 1) * itemsPerPage;
+            let paginatedRecords = filteredRecords.slice(startIndex, startIndex + itemsPerPage);
+
             container.innerHTML = '';
-            filteredRecords.reverse().forEach((rec) => {
+            paginatedRecords.reverse().forEach((rec) => {
                 const folderBox = document.createElement('div');
                 folderBox.className = "bg-white border border-slate-200 rounded-2xl shadow-xs overflow-visible transition-all hover:border-indigo-300 relative";
                 
@@ -578,6 +597,26 @@
                 `;
                 container.appendChild(folderBox);
             });
+
+            // Render Navigasi Tombol Halaman (Pagination)
+            if (totalPages > 1) {
+                paginationContainer.innerHTML = `
+                    <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-300 cursor-not-allowed"' : 'class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 cursor-pointer"'}>
+                        ← Sebelumnya
+                    </button>
+                    <span class="text-xs font-semibold text-slate-600">Hal ${currentPage} dari ${totalPages}</span>
+                    <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-300 cursor-not-allowed"' : 'class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 cursor-pointer"'}>
+                        Selanjutnya →
+                    </button>
+                `;
+            } else {
+                paginationContainer.innerHTML = '';
+            }
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            loadAdminFolders();
         }
 
         // Buka Halaman Detail Khusus Nama Anak
@@ -630,7 +669,7 @@
                     </ul>
                 </div>
 
-                <!-- 3. Kesimpulan Umum & Saran Intervensi (Teks Ditebalkan Agar Jelas) -->
+                <!-- 3. Kesimpulan Umum & Saran Intervensi -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                     <div class="bg-indigo-50/70 p-5 rounded-2xl border border-indigo-100 space-y-2">
                         <h4 class="font-bold text-indigo-950 border-b border-indigo-200/50 pb-2">📋 3. Kesimpulan Umum</h4>
@@ -714,10 +753,10 @@
             }
         }
 
-        function clearAllAdminData() {
-            if (confirm("Apakah Anda yakin ingin menghapus SELURUH folder laporan aktif?")) {
+        function clearAllArchivedData() {
+            if (confirm("Apakah Anda yakin ingin menghapus SELURUH folder yang ada di dalam arsip secara permanen?")) {
                 let allRecords = JSON.parse(localStorage.getItem('psikologi_proclinic60_folders')) || [];
-                allRecords = allRecords.filter(r => r.isArchived);
+                allRecords = allRecords.filter(r => !r.isArchived);
                 localStorage.setItem('psikologi_proclinic60_folders', JSON.stringify(allRecords));
                 loadAdminFolders();
             }
