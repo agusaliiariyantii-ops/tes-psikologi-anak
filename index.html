@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRO-CLINIC 60: Asesmen Psikologi Klinis Komprehensif Anak</title>
+    <title>PRO-CLINIC CLINICAL: Asesmen Psikologi Komprehensif Anak</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-2">
                 <span class="text-2xl">🧠</span>
-                <h1 class="text-base md:text-lg font-bold text-slate-800">ProClinic 60 — Comprehensive Psychometrics</h1>
+                <h1 class="text-base md:text-lg font-bold text-slate-800">ProClinic Clinical Dashboard</h1>
             </div>
             <span id="user-badge" class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-semibold hidden"></span>
         </div>
@@ -56,7 +56,7 @@
             <div class="bg-indigo-900 text-white rounded-3xl p-6 shadow-md">
                 <h2 id="greeting-title" class="text-xl font-bold mb-1">Halo!</h2>
                 <p class="text-indigo-200 text-xs leading-relaxed">
-                    Kuesioner ini terdiri dari 60 pernyataan mendalam mengenai keseharianmu. Baca baik-baik dan pilih jawaban yang paling jujur (Selalu, Sering, Kadang-kadang, Jarang, Tidak Pernah). Jawablah seluruhnya, lalu klik tombol <strong>Kirim Jawaban</strong> di bagian paling bawah.
+                    Kuesioner ini terdiri dari 60 pernyataan mendalam mengenai keseharianmu. Baca baik-baik dan pilih jawaban yang paling jujur (Selalu, Sering, Kadang-kadang, Jarang, Tidak Pernah). Jawablah seluruhnya, lalu klik tombol **Kirim Jawaban** di bagian paling bawah.
                 </p>
             </div>
 
@@ -91,8 +91,8 @@
         <div id="admin-screen" class="bg-white rounded-3xl shadow-xl p-6 md:p-8 hidden border border-slate-100">
             <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
                 <div>
-                    <h2 class="text-xl font-bold text-slate-800">🔒 Dashboard Laporan Klinis 60 Domain</h2>
-                    <p class="text-xs text-slate-500">Analisis komprehensif berdasarkan 6 aspek psikososial utama per siswa.</p>
+                    <h2 class="text-xl font-bold text-slate-800">🔒 Dashboard Laporan Klinis Terpusat</h2>
+                    <p class="text-xs text-slate-500">Klik pada kartu nama siswa di bawah untuk membuka detail analisis psikososial.</p>
                 </div>
                 <button onclick="logout()" class="bg-rose-50 text-rose-600 hover:bg-rose-100 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer">
                     Keluar Admin
@@ -109,8 +109,8 @@
                 </button>
             </div>
 
-            <!-- List Folder Siswa -->
-            <div id="admin-folders-container" class="space-y-5 mb-6 max-h-[650px] overflow-y-auto pr-2">
+            <!-- List Folder Siswa (Tertutup Default) -->
+            <div id="admin-folders-container" class="space-y-4 mb-6 max-h-[700px] overflow-y-auto pr-2">
                 <!-- Folder dinamis -->
             </div>
 
@@ -125,13 +125,12 @@
 
     <!-- Footer -->
     <footer class="text-center py-4 text-xs text-slate-400">
-        ProClinic 60 Clinical Assessment Engine &bull; &copy; 2026
+        ProClinic Clinical Engine &bull; &copy; 2026
     </footer>
 
     <!-- JavaScript Logika -->
     <script>
         const master60Bank = [
-            // --- DOMAIN 1: TINGKAT STRES, KECEMASAN, & PSIKOSOMATIS ---
             { id: 1, domain: "Stres & Kecemasan", text: "Aku merasa cemas, khawatir berlebihan, atau tegang saat memikirkan tugas sekolah atau ujian." },
             { id: 2, domain: "Stres & Kecemasan", text: "Aku sering merasa pusing, sakit perut, atau tubuh lemas tanpa sebab fisik jelas saat menghadapi tekanan." },
             { id: 3, domain: "Stres & Kecemasan", text: "Aku merasa sulit tidur nyenyak atau sering terbangun karena memikirkan masalah atau kejadian hari ini." },
@@ -143,7 +142,6 @@
             { id: 9, domain: "Stres & Kecemasan", text: "Aku merasa sulit untuk bersantai dan menikmati waktu luang karena terus memikirkan tugas." },
             { id: 10, domain: "Stres & Kecemasan", text: "Aku sering merasa panik atau kebingungan ketika menghadapi situasi yang tidak terduga." },
 
-            // --- DOMAIN 2: STABILITAS & REGULASI EMOSI ---
             { id: 11, domain: "Regulasi Emosi", text: "Aku merasa sangat kesal, marah besar, atau ingin menangis ketika keinginanku tidak langsung dituruti." },
             { id: 12, domain: "Regulasi Emosi", text: "Perasaanku sangat mudah berubah-ubah dalam waktu singkat (sebentar senang, tiba-tiba sedih atau marah)." },
             { id: 13, domain: "Regulasi Emosi", text: "Aku mampu menenangkan diri dengan baik setelah merasa marah atau kecewa." },
@@ -155,7 +153,6 @@
             { id: 19, domain: "Regulasi Emosi", text: "Aku merasa kesulitan menahan diri untuk tidak ikut campur atau memotong pembicaraan orang." },
             { id: 20, domain: "Regulasi Emosi", text: "Aku merasa lega setelah bisa menangis atau mencurahkan isi hatiku kepada orang yang dipercaya." },
 
-            // --- DOMAIN 3: RENTANG FOKUS & ATENSI (ATTENTION SPAN) ---
             { id: 21, domain: "Fokus & Konsentrasi", text: "Aku merasa sangat mudah terdistraksi (kehilangan fokus) oleh suara kecil atau gerakan di sekitarku." },
             { id: 22, domain: "Fokus & Konsentrasi", text: "Aku mampu menyelesaikan tugas atau membaca buku sampai tuntas tanpa teralihkan hal lain." },
             { id: 23, domain: "Fokus & Konsentrasi", text: "Aku sering lupa menaruh barang-barangku (seperti pensil, buku, botol minum) atau tugas sekolah." },
@@ -167,7 +164,6 @@
             { id: 29, domain: "Fokus & Konsentrasi", text: "Aku merasa gelisah secara fisik (kaki atau tangan bergerak terus) saat harus duduk diam." },
             { id: 30, domain: "Fokus & Konsentrasi", text: "Aku membutuhkan suasana yang benar-benar sunyi agar bisa fokus mengerjakan sesuatu." },
 
-            // --- DOMAIN 4: DAYA JUANG, RESILIENSI, & FRUSTRASI ---
             { id: 31, domain: "Daya Juang & Resiliensi", text: "Aku langsung menyerah atau ingin berhenti ketika menemui soal atau tantangan yang sulit." },
             { id: 32, domain: "Daya Juang & Resiliensi", text: "Aku merasa sangat terpukul atau menyalahkan diri sendiri secara berlebihan saat melakukan kesalahan." },
             { id: 33, domain: "Daya Juang & Resiliensi", text: "Aku tetap berusaha mencari cara lain ketika percobaan pertamaku mengalami kegagalan." },
@@ -179,7 +175,6 @@
             { id: 39, domain: "Daya Juang & Resiliensi", text: "Aku berani mengambil risiko untuk mencoba metode baru dalam memecahkan masalah." },
             { id: 40, domain: "Daya Juang & Resiliensi", text: "Aku cepat bangkit kembali dari kekecewaan dan kembali ceria setelah beberapa saat." },
 
-            // --- DOMAIN 5: KEMANDIRIAN & TANGGUNG JAWAB ---
             { id: 41, domain: "Kemandirian & Disiplin", text: "Aku menyiapkan keperluan sekolah, mandi, atau merapikan tempat tidurku sendiri tanpa disuruh." },
             { id: 42, domain: "Kemandirian & Disiplin", text: "Aku menunda-nunda pekerjaan atau PR sampai batas waktu hampir habis (sistem kebut semalam)." },
             { id: 43, domain: "Kemandirian & Disiplin", text: "Aku berani mengakui kesalahan yang kuperbuat dan bertanggung jawab memperbaikinya." },
@@ -191,7 +186,6 @@
             { id: 49, domain: "Kemandirian & Disiplin", text: "Aku menepati janji dan komitmen yang sudah kubuat dengan orang tua atau teman." },
             { id: 50, domain: "Kemandirian & Disiplin", text: "Aku memiliki inisiatif sendiri untuk membantu pekerjaan ringan di rumah tanpa diminta." },
 
-            // --- DOMAIN 6: KONSEP DIRI & INTERAKSI SOSIAL ---
             { id: 51, domain: "Sosial & Kepercayaan Diri", text: "Aku merasa malu, minder, atau takut salah ketika harus berbicara di depan kelas atau banyak orang." },
             { id: 52, domain: "Sosial & Kepercayaan Diri", text: "Aku merasa kesulitan mencari teman atau merasa kesepian di lingkungan sekolah." },
             { id: 53, domain: "Sosial & Kepercayaan Diri", text: "Aku merasa percaya diri dengan kemampuan dan penampilan yang aku miliki." },
@@ -213,6 +207,38 @@
         const adminScreen = document.getElementById('admin-screen');
         const userBadge = document.getElementById('user-badge');
 
+        // Cek Sesi Tersimpan saat halaman dimuat (Mencegah hilang saat refresh)
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedSession = localStorage.getItem('proclinic_current_session');
+            if (savedSession) {
+                const session = JSON.parse(savedSession);
+                currentUser = session.user;
+                if (session.state === 'admin') {
+                    loginScreen.classList.add('hidden');
+                    adminScreen.classList.remove('hidden');
+                    userBadge.innerText = "🔑 Mode Orang Tua/Guru";
+                    userBadge.classList.remove('hidden');
+                    loadAdminFolders();
+                } else if (session.state === 'quiz') {
+                    loginScreen.classList.add('hidden');
+                    quizScreen.classList.remove('hidden');
+                    document.getElementById('greeting-title').innerText = `Halo, ${currentUser.nama} (${currentUser.kelas})! 👋`;
+                    userBadge.innerText = `${currentUser.nama} - ${currentUser.kelas}`;
+                    userBadge.classList.remove('hidden');
+                    renderAll60Questions();
+                } else if (session.state === 'result') {
+                    loginScreen.classList.add('hidden');
+                    resultScreen.classList.remove('hidden');
+                    userBadge.innerText = `${currentUser.nama} - ${currentUser.kelas}`;
+                    userBadge.classList.remove('hidden');
+                }
+            }
+        });
+
+        function saveSession(state) {
+            localStorage.setItem('proclinic_current_session', JSON.stringify({ user: currentUser, state: state }));
+        }
+
         function handleLogin(e) {
             e.preventDefault();
             const nama = document.getElementById('input-nama').value.trim();
@@ -221,6 +247,7 @@
             currentUser = { nama, kelas };
 
             if (nama.toLowerCase() === 'admin' && kelas.toLowerCase() === 'admin') {
+                saveSession('admin');
                 loginScreen.classList.add('hidden');
                 adminScreen.classList.remove('hidden');
                 userBadge.innerText = "🔑 Mode Orang Tua/Guru";
@@ -229,6 +256,7 @@
                 return;
             }
 
+            saveSession('quiz');
             loginScreen.classList.add('hidden');
             quizScreen.classList.remove('hidden');
             document.getElementById('greeting-title').innerText = `Halo, ${nama} (${kelas})! 👋`;
@@ -301,6 +329,7 @@
 
             generateFullClinicalReport60(answersLog);
 
+            saveSession('result');
             quizScreen.classList.add('hidden');
             resultScreen.classList.remove('hidden');
         }
@@ -327,54 +356,93 @@
 
             let scoreIndex = Math.round((totalScore / maxScore) * 100);
 
-            let conclusions = [];
+            let clinicalAnalysis = [];
             let attentionItems = [];
             let suggestions = [];
+            let generalConclusions = [];
 
-            if (domainScores["Stres & Kecemasan"] >= 22) {
-                attentionItems.push("⚠️ <strong>Stres & Kecemasan Tinggi:</strong> Terdeteksi indikasi beban tekanan psikologis atau kekhawatiran berlebih pada anak.");
-                suggestions.push("Lakukan pendekatan dialog terbuka tanpa menghakimi. Evaluasi apakah jadwal harian anak terlalu padat dan berikan ruang rehat yang cukup.");
-            }
-
-            if (domainScores["Regulasi Emosi"] >= 22) {
-                attentionItems.push("⚠️ <strong>Reaktivitas Emosional:</strong> Kontrol impuls emosi rentan meledak atau sensitif saat menghadapi ketidaksesuaian.");
-                suggestions.push("Ajarkan teknik pendinginan emosi (*cooling down*) dan latihan mengenali nama-nama emosi dasar sebelum bereaksi.");
-            }
-
-            if (domainScores["Fokus & Konsentrasi"] >= 22) {
-                attentionItems.push("⚠️ <strong>Atensi Mudah Terdistraksi:</strong> Rentang fokus di bawah rata-rata atau mudah teralihkan oleh stimulus lingkungan.");
-                suggestions.push("Terapkan metode belajar sesi pendek (15 menit) diselingi gerakan fisik ringkas, serta jauhkan gadget/mainan dari meja belajar.");
-            }
-
-            if (domainScores["Daya Juang & Resiliensi"] >= 22) {
-                attentionItems.push("⚠️ <strong>Resiliensi Rentan:</strong> Anak cenderung mudah menyerah atau terpukul saat menghadapi tugas sulit atau kegagalan.");
-                suggestions.push("Berikan pujian pada proses usahanya (*growth mindset*), bukan semata-mata pada hasil akhir atau nilai bagus.");
-            }
-
-            if (domainScores["Kemandirian & Disiplin"] >= 22) {
-                attentionItems.push("⚠️ <strong>Kemandirian Perlu Stimulasi:</strong> Tanggung jawab rutinitas harian masih sangat bergantung pada pengawasan orang dewasa.");
-                suggestions.push("Gunakan tabel *checklist* visual harian agar anak terlatih mandiri menyelesaikan kewajibannya setapak demi setapak.");
-            }
-
-            if (domainScores["Sosial & Kepercayaan Diri"] >= 22) {
-                attentionItems.push("⚠️ <strong>Kecemasan Sosial / Minder:</strong> Terdapat indikasi rasa kurang percaya diri atau kecemasan performansi di depan umum.");
-                suggestions.push("Dukung keberanian anak melalui apresiasi sekecil apapun dan fasilitasi interaksi dalam kelompok kecil yang aman.");
-            }
-
-            if (scoreIndex >= 75) {
-                conclusions.unshift("Secara umum, profil psikososial anak sangat matang, mandiri, seimbang, dan adaptif.");
-            } else if (scoreIndex >= 45) {
-                conclusions.unshift("Profil psikososial anak berada pada batas normal/adaptif, dengan beberapa catatan domain perilaku yang memerlukan perhatian pengasuhan.");
+            // Alur Bertahap 1: Analisis Detail per Domain Terlebih Dahulu
+            let sScore = domainScores["Stres & Kecemasan"];
+            if (sScore >= 28) {
+                clinicalAnalysis.push("🔴 <strong>Stres & Kecemasan:</strong> Terdeteksi reaktivitas kecemasan tinggi. Anak mengalami beban psikosomatis atau tekanan ekspektasi yang cukup menguras energi mental.");
+                suggestions.push("Lakukan dialog terbuka tanpa menghakimi. Evaluasi ulang jadwal harian anak agar memiliki waktu rehat yang cukup.");
+            } else if (sScore >= 18) {
+                clinicalAnalysis.push("🟡 <strong>Stres & Kecemasan:</strong> Cukup adaptif namun sesekali merasakan tegang atau cemas menghadapi situasi tak terduga.");
+                suggestions.push("Berikan validasi saat anak mengeluh lelah, ajarkan teknik pernapasan perut (*deep breathing*).");
             } else {
-                conclusions.unshift("Terdeteksi kerentanan klinis yang cukup signifikan di beberapa aspek, memerlukan intervensi dan pendampingan empati penuh.");
+                clinicalAnalysis.push("🟢 <strong>Stres & Kecemasan:</strong> Stabil, tenang, dan mampu mengelola tekanan psikologis dengan sangat baik.");
+            }
+
+            let eScore = domainScores["Regulasi Emosi"];
+            if (eScore >= 28) {
+                clinicalAnalysis.push("🔴 <strong>Regulasi Emosi:</strong> Kontrol impuls rendah, emosi sangat reaktif, mudah meledak atau sensitif saat keinginan tertunda.");
+                suggestions.push("Terapkan *cooling down time* di tempat tenang saat anak mulai marah. Jadilah teladan ketenangan.");
+            } else if (eScore >= 18) {
+                clinicalAnalysis.push("🟡 <strong>Regulasi Emosi:</strong> Fluktuasi emosi sedang, kadang menunjukkan sikap cemberut jika menemui ketidaksesuaian.");
+                suggestions.push("Latih anak mengenali nama perasaannya dan beri apresiasi saat ia berhasil sabar.");
+            } else {
+                clinicalAnalysis.push("🟢 <strong>Regulasi Emosi:</strong> Stabilitas dan kontrol emosi matang serta adaptif untuk usianya.");
+            }
+
+            let fScore = domainScores["Fokus & Konsentrasi"];
+            if (fScore >= 28) {
+                clinicalAnalysis.push("🔴 <strong>Rentang Fokus:</strong> Atensi sangat mudah terdistraksi, kesulitan mempertahankan konsentrasi dalam durasi standar.");
+                suggestions.push("Gunakan metode belajar mikro (fokus 10-15 menit diselingi gerak fisik). Jauhkan mainan dari meja belajar.");
+            } else if (fScore >= 18) {
+                clinicalAnalysis.push("🟡 <strong>Rentang Fokus:</strong> Atensi fluktuatif, mudah goyah jika materi mulai membosankan.");
+                suggestions.push("Gunakan instruksi bertahap satu perintah dalam satu waktu serta buatkan checklist tugas visual.");
+            } else {
+                clinicalAnalysis.push("🟢 <strong>Rentang Fokus:</strong> Konsentrasi dan ketahanan atensi prima serta sangat baik.");
+            }
+
+            let rScore = domainScores["Daya Juang & Resiliensi"];
+            if (rScore >= 28) {
+                clinicalAnalysis.push("🔴 <strong>Daya Juang / Resiliensi:</strong> Cepat putus asa, toleransi frustrasi rendah, mudah menyalahkan diri saat menemui kesulitan.");
+                suggestions.push("Terapkan *growth mindset*: puji proses usaha dan ketekunannya, bukan hasil akhirnya.");
+            } else if (rScore >= 18) {
+                clinicalAnalysis.push("🟡 <strong>Daya Juang / Resiliensi:</strong> Butuh dorongan eksternal agar tidak mudah ciut ketika menemui soal sulit.");
+                suggestions.push("Dampingi saat ia menemui jalan buntu, bantu memecah masalah besar menjadi bagian kecil.");
+            } else {
+                clinicalAnalysis.push("🟢 <strong>Daya Juang / Resiliensi:</strong> Memiliki mental pantang menyerah dan resiliensi yang luar biasa.");
+            }
+
+            let kScore = domainScores["Kemandirian & Disiplin"];
+            if (kScore >= 28) {
+                clinicalAnalysis.push("🔴 <strong>Kemandirian & Disiplin:</strong> Tanggung jawab rutinitas harian masih sangat bergantung penuh pada instruksi orang dewasa.");
+                suggestions.push("Berikan tanggung jawab kecil yang konsisten (merapikan meja) dan biarkan ia belajar dari konsekuensi kecil.");
+            } else if (kScore >= 18) {
+                clinicalAnalysis.push("🟡 <strong>Kemandirian & Disiplin:</strong> Mandiri jika sudah diingatkan secara teratur atau dibuatkan jadwal rutin.");
+                suggestions.push("Kurangi frekuensi pengingat verbal secara perlahan agar ia terbiasa mandiri.");
+            } else {
+                clinicalAnalysis.push("🟢 <strong>Kemandirian & Disiplin:</strong> Tingkat kemandirian dan kedisiplinan personal sangat tinggi.");
+            }
+
+            let sosScore = domainScores["Sosial & Kepercayaan Diri"];
+            if (sosScore >= 28) {
+                clinicalAnalysis.push("🔴 <strong>Sosial & Kepercayaan Diri:</strong> Terdapat indikasi rasa minder yang kuat, kecemasan performansi, atau menarik diri.");
+                suggestions.push("Fasilitasi interaksi dalam kelompok kecil yang aman dan suportif. Jangan membandingkan anak.");
+            } else if (sosScore >= 18) {
+                clinicalAnalysis.push("🟡 <strong>Sosial & Kepercayaan Diri:</strong> Cenderung hati-hati atau butuh waktu adaptasi lebih sebelum tampil di depan umum.");
+                suggestions.push("Berikan ruang aman di rumah untuk berlatih serta apresiasi keberanian kecilnya.");
+            } else {
+                clinicalAnalysis.push("🟢 <strong>Sosial & Kepercayaan Diri:</strong> Konsep diri positif, percaya diri tinggi, dan keterampilan sosial baik.");
+            }
+
+            // Alur Bertahap 2: Baru Ditutup dengan Kesimpulan Umum
+            if (scoreIndex >= 75) {
+                generalConclusions.push("Secara menyeluruh, profil psikososial anak sangat seimbang, matang, dan menunjukkan adaptasi yang sangat positif.");
+            } else if (scoreIndex >= 45) {
+                generalConclusions.push("Profil psikososial berada pada batas normal/adaptif, dengan beberapa catatan domain perilaku yang memerlukan perhatian pengasuhan.");
+            } else {
+                generalConclusions.push("Terdeteksi akumulasi kerentanan klinis di beberapa domain penting yang memerlukan intervensi terarah dan pendampingan empati penuh.");
             }
 
             if (attentionItems.length === 0) {
-                attentionItems.push("✅ Tidak ditemukan adanya indikasi risiko klinis yang menonjol di seluruh 6 Domain utama. Anak berkembang secara harmonis.");
+                attentionItems.push("✅ Tidak ditemukan adanya indikasi risiko klinis yang mengkhawatirkan di seluruh 6 Domain utama.");
             }
 
             if (suggestions.length === 0) {
-                suggestions.push("Pertahankan pola komunikasi hangat dan suportif yang sudah berjalan dengan baik di rumah maupun sekolah.");
+                suggestions.push("Pertahankan pola komunikasi dua arah yang hangat dan suportif di rumah.");
             }
 
             let record = {
@@ -383,7 +451,8 @@
                 folderName: `${currentUser.nama} - ${currentUser.kelas}`,
                 scoreIndex: scoreIndex,
                 domainScores: domainScores,
-                conclusions: conclusions,
+                generalConclusions: generalConclusions,
+                clinicalAnalysis: clinicalAnalysis,
                 attentionItems: attentionItems,
                 suggestions: suggestions,
                 isArchived: false,
@@ -425,34 +494,36 @@
             container.innerHTML = '';
             filteredRecords.reverse().forEach((rec) => {
                 const folderBox = document.createElement('div');
-                folderBox.className = "bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4 shadow-2xs relative";
+                folderBox.className = "bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden transition-all";
                 
-                let conclusionsHtml = rec.conclusions.map(c => `<li class="text-slate-700">${c}</li>`).join('');
-                let attentionsHtml = rec.attentionItems.map(a => `<li class="text-amber-900">${a}</li>`).join('');
+                let analysisHtml = rec.clinicalAnalysis.map(c => `<li class="text-slate-700 pb-1">${c}</li>`).join('');
+                let conclusionsHtml = rec.generalConclusions.map(c => `<li class="text-slate-800 font-medium">${c}</li>`).join('');
                 let suggestionsHtml = rec.suggestions.map(s => `<li class="text-indigo-900">${s}</li>`).join('');
 
                 let archiveButtonText = rec.isArchived ? "📂 Pulihkan dari Arsip" : "📦 Arsipkan Data";
                 let archiveAction = rec.isArchived ? `unarchiveCard('${rec.folderName}')` : `archiveCard('${rec.folderName}')`;
+                let safeId = rec.folderName.replace(/[^a-zA-Z0-9]/g, '_');
 
                 folderBox.innerHTML = `
-                    <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                    <!-- HEADER KARTU (TERTUTUP DEFAULT) -->
+                    <div class="flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100 transition cursor-pointer border-b border-slate-100" onclick="toggleCardDetail('${safeId}')">
                         <div class="flex items-center space-x-3">
                             <span class="text-2xl">📁</span>
                             <div>
                                 <h3 class="font-bold text-slate-800 text-base">${rec.folderName}</h3>
-                                <span class="text-[10px] text-slate-400">Waktu Tes: ${rec.tanggal}</span>
+                                <span class="text-[10px] text-slate-400">Waktu Tes: ${rec.tanggal} &bull; <strong class="text-indigo-600">Klik untuk buka detail 🔍</strong></span>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-3" onclick="event.stopPropagation()">
                             <div class="text-right">
-                                <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-semibold block mb-1">Skor Indeks: ${rec.scoreIndex}%</span>
+                                <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-semibold block">Indeks: ${rec.scoreIndex}%</span>
                             </div>
 
                             <div class="relative">
                                 <button onclick="toggleDropdown(event, '${rec.folderName}')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-2 rounded-xl text-sm transition cursor-pointer" title="Menu Opsi">
                                     ⋮
                                 </button>
-                                <div id="dropdown_${rec.folderName.replace(/[^a-zA-Z0-9]/g, '_')}" class="hidden absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-1 text-xs">
+                                <div id="dropdown_${safeId}" class="hidden absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-1 text-xs">
                                     <button onclick="${archiveAction}" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-slate-700 font-medium flex items-center space-x-2 cursor-pointer">
                                         <span>${archiveButtonText}</span>
                                     </button>
@@ -464,33 +535,43 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
-                        <div class="bg-white p-2 rounded-lg border border-slate-200">Stres: <strong>${rec.domainScores["Stres & Kecemasan"]}/40</strong></div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200">Emosi: <strong>${rec.domainScores["Regulasi Emosi"]}/40</strong></div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200">Fokus: <strong>${rec.domainScores["Fokus & Konsentrasi"]}/40</strong></div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200">Resiliensi: <strong>${rec.domainScores["Daya Juang & Resiliensi"]}/40</strong></div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200">Kemandirian: <strong>${rec.domainScores["Kemandirian & Disiplin"]}/40</strong></div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200">Sosial: <strong>${rec.domainScores["Sosial & Kepercayaan Diri"]}/40</strong></div>
-                    </div>
+                    <!-- KONTEN DETAIL (TERSEMBUNYI HINGGA DIKLIK) -->
+                    <div id="detail_${safeId}" class="hidden p-5 space-y-4 bg-white">
+                        <!-- 1. Skor Aspek per Domain -->
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">1. Skor Aspek Psikososial (Maks. 40)</h4>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
+                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">Stres & Cemas: <strong>${rec.domainScores["Stres & Kecemasan"]}/40</strong></div>
+                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">Regulasi Emosi: <strong>${rec.domainScores["Regulasi Emosi"]}/40</strong></div>
+                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">Rentang Fokus: <strong>${rec.domainScores["Fokus & Konsentrasi"]}/40</strong></div>
+                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">Daya Juang/Resiliensi: <strong>${rec.domainScores["Daya Juang & Resiliensi"]}/40</strong></div>
+                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">Kemandirian: <strong>${rec.domainScores["Kemandirian & Disiplin"]}/40</strong></div>
+                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">Sosial & Pede: <strong>${rec.domainScores["Sosial & Kepercayaan Diri"]}/40</strong></div>
+                            </div>
+                        </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs pt-2">
-                        <div class="bg-white p-3.5 rounded-xl border border-slate-100 space-y-1.5 shadow-2xs">
-                            <h4 class="font-bold text-slate-800 flex items-center border-b pb-1">📋 Kesimpulan Klinis</h4>
-                            <ul class="list-disc pl-4 space-y-1.5 text-slate-600">
-                                ${conclusionsHtml}
+                        <!-- 2. Analisis Klinis Mendalam per Domain -->
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2">
+                            <h4 class="font-bold text-slate-800 text-xs border-b pb-1.5 flex items-center">🔍 2. Analisis Klinis Mendalam per Domain</h4>
+                            <ul class="list-disc pl-4 space-y-2 text-xs leading-relaxed">
+                                ${analysisHtml}
                             </ul>
                         </div>
-                        <div class="bg-amber-50/70 p-3.5 rounded-xl border border-amber-100 space-y-1.5 shadow-2xs">
-                            <h4 class="font-bold text-amber-900 flex items-center border-b border-amber-200/50 pb-1">⚠️ Atensi Perilaku</h4>
-                            <ul class="list-disc pl-4 space-y-1.5 text-amber-900">
-                                ${attentionsHtml}
-                            </ul>
-                        </div>
-                        <div class="bg-indigo-50/70 p-3.5 rounded-xl border border-indigo-100 space-y-1.5 shadow-2xs">
-                            <h4 class="font-bold text-indigo-900 flex items-center border-b border-indigo-200/50 pb-1">💡 Saran Intervensi</h4>
-                            <ul class="list-disc pl-4 space-y-1.5 text-indigo-900">
-                                ${suggestionsHtml}
-                            </ul>
+
+                        <!-- 3. Kesimpulan Umum & Saran Intervensi -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <div class="bg-indigo-50/70 p-4 rounded-xl border border-indigo-100 space-y-1.5">
+                                <h4 class="font-bold text-indigo-900 border-b border-indigo-200/50 pb-1.5">📋 3. Kesimpulan Umum</h4>
+                                <ul class="list-disc pl-4 space-y-1.5 text-indigo-900 leading-relaxed">
+                                    ${conclusionsHtml}
+                                </ul>
+                            </div>
+                            <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-100 space-y-1.5">
+                                <h4 class="font-bold text-emerald-900 border-b border-emerald-200/50 pb-1.5">💡 4. Saran Intervensi Konkret</h4>
+                                <ul class="list-disc pl-4 space-y-1.5 text-emerald-900 leading-relaxed">
+                                    ${suggestionsHtml}
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -498,14 +579,20 @@
             });
         }
 
+        function toggleCardDetail(safeId) {
+            const detailDiv = document.getElementById(`detail_${safeId}`);
+            detailDiv.classList.toggle('hidden');
+        }
+
         function toggleDropdown(event, folderName) {
             event.stopPropagation();
+            let safeId = folderName.replace(/[^a-zA-Z0-9]/g, '_');
             document.querySelectorAll("[id^='dropdown_']").forEach(el => {
-                if(el.id !== `dropdown_${folderName.replace(/[^a-zA-Z0-9]/g, '_')}`) {
+                if(el.id !== `dropdown_${safeId}`) {
                     el.classList.add('hidden');
                 }
             });
-            const dropdown = document.getElementById(`dropdown_${folderName.replace(/[^a-zA-Z0-9]/g, '_')}`);
+            const dropdown = document.getElementById(`dropdown_${safeId}`);
             dropdown.classList.toggle('hidden');
         }
 
@@ -558,6 +645,7 @@
         }
 
         function logout() {
+            localStorage.removeItem('proclinic_current_session');
             currentUser = { nama: "", kelas: "" };
             document.getElementById('input-nama').value = "";
             document.getElementById('input-kelas').value = "";
