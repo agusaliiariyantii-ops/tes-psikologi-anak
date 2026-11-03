@@ -124,16 +124,22 @@
             </div>
         </div>
 
-        <!-- HALAMAN KHUSUS DETAIL LAPORAN ANAK (FOKUS INDIVIDU) -->
-        <div id="admin-detail-screen" class="bg-white rounded-3xl shadow-xl p-6 md:p-8 hidden border border-slate-100 space-y-6">
-            <div class="flex justify-between items-center border-b border-slate-200 pb-4">
-                <button onclick="backToAdminList()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center space-x-2">
-                    <span>← Kembali ke Daftar</span>
-                </button>
-                <span id="detail-header-title" class="text-sm font-bold text-indigo-900"></span>
+        <!-- HALAMAN KHUSUS DETAIL LAPORAN ANAK (DENGAN STICKY HEADER NAMA ANAK) -->
+        <div id="admin-detail-screen" class="hidden space-y-6">
+            <!-- Header Mengambang (Sticky) agar nama anak selalu terlihat saat di-scroll -->
+            <div class="sticky top-20 z-40 bg-white/95 backdrop-blur-md rounded-2xl shadow-md p-4 border border-indigo-100 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">👤</span>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-indigo-600 tracking-wider block">Laporan Aktif</span>
+                        <h3 id="detail-header-title" class="text-base md:text-lg font-extrabold text-slate-900"></h3>
+                    </div>
+                </div>
+                <span id="detail-header-badge" class="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-xs"></span>
             </div>
 
-            <div id="detail-content-area" class="space-y-5">
+            <!-- Konten Lengkap Laporan -->
+            <div id="detail-content-area" class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-slate-100 space-y-5">
                 <!-- Konten dinamis laporan anak -->
             </div>
         </div>
@@ -217,7 +223,7 @@
 
         let currentUser = { nama: "", kelas: "" };
         let currentAdminTab = 'active';
-        let isViewingDetail = false; // Status apakah sedang di halaman detail anak
+        let isViewingDetail = false;
 
         const loginScreen = document.getElementById('login-screen');
         const quizScreen = document.getElementById('quiz-screen');
@@ -227,11 +233,10 @@
         const userBadge = document.getElementById('user-badge');
         const headerLogoutBtn = document.getElementById('header-logout-btn');
 
-        // Navigasi Tombol Kembali HP agar kembali ke daftar kartu admin
+        // Navigasi Tombol Kembali (Back) HP otomatis menutup detail laporan kembali ke daftar
         window.addEventListener('popstate', (event) => {
             if (isViewingDetail) {
                 backToAdminList();
-                history.pushState(null, '', window.location.href);
             }
         });
 
@@ -529,6 +534,7 @@
                 let archiveButtonText = rec.isArchived ? "📂 Pulihkan dari Arsip" : "📦 Arsipkan Data";
                 let archiveAction = rec.isArchived ? `unarchiveCard('${rec.folderName}')` : `archiveCard('${rec.folderName}')`;
                 let safeName = rec.folderName.replace(/'/g, "\\'");
+                let safeId = rec.folderName.replace(/[^a-zA-Z0-9]/g, '_');
 
                 folderBox.innerHTML = `
                     <!-- HEADER KARTU (HANYA NAMA - KELAS SAJA) -->
@@ -542,10 +548,10 @@
                         </div>
                         <div class="flex items-center space-x-3" onclick="event.stopPropagation()">
                             <div class="relative">
-                                <button onclick="toggleDropdown(event, '${safeName}')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-2 rounded-xl text-sm transition cursor-pointer" title="Menu Opsi">
+                                <button onclick="toggleDropdown(event, '${safeId}')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-2 rounded-xl text-sm transition cursor-pointer" title="Menu Opsi">
                                     ⋮
                                 </button>
-                                <div id="dropdown_${safeName.replace(/[^a-zA-Z0-9]/g, '_')}" class="hidden absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-1 text-xs">
+                                <div id="dropdown_${safeId}" class="hidden absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-1 text-xs">
                                     <button onclick="${archiveAction}" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-slate-700 font-medium flex items-center space-x-2 cursor-pointer">
                                         <span>${archiveButtonText}</span>
                                     </button>
@@ -570,7 +576,8 @@
             isViewingDetail = true;
             history.pushState({ detailOpen: true }, '', window.location.href);
 
-            document.getElementById('detail-header-title').innerText = `📄 Laporan Klinis: ${rec.folderName}`;
+            document.getElementById('detail-header-title').innerText = rec.folderName;
+            document.getElementById('detail-header-badge').innerText = `Indeks Skor: ${rec.scoreIndex}%`;
 
             let analysisHtml = rec.clinicalAnalysis.map(c => `<li class="text-slate-700 pb-1">${c}</li>`).join('');
             let conclusionsHtml = rec.generalConclusions.map(c => `<li class="text-slate-800 font-medium">${c}</li>`).join('');
@@ -578,10 +585,9 @@
 
             const contentArea = document.getElementById('detail-content-area');
             contentArea.innerHTML = `
-                <!-- Info Tanggal & Indeks Skor -->
-                <div class="flex justify-between items-center bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
+                <!-- Info Tanggal -->
+                <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
                     <span class="text-xs text-slate-600">📅 Waktu Pengisian: <strong>${rec.tanggal}</strong></span>
-                    <span class="bg-indigo-600 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-xs">Indeks Skor: ${rec.scoreIndex}%</span>
                 </div>
 
                 <!-- 1. Skor Aspek per Domain -->
@@ -634,9 +640,8 @@
             adminScreen.classList.remove('hidden');
         }
 
-        function toggleDropdown(event, folderName) {
+        function toggleDropdown(event, safeId) {
             event.stopPropagation();
-            let safeId = folderName.replace(/[^a-zA-Z0-9]/g, '_');
             document.querySelectorAll("[id^='dropdown_']").forEach(el => {
                 if(el.id !== `dropdown_${safeId}`) {
                     el.classList.add('hidden');
