@@ -90,12 +90,12 @@
             </button>
         </div>
 
-        <!-- ADMIN DASHBOARD -->
+        <!-- ADMIN DASHBOARD (DAFTAR KARTU) -->
         <div id="admin-screen" class="bg-white rounded-3xl shadow-xl p-6 md:p-8 hidden border border-slate-100">
             <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
                 <div>
                     <h2 class="text-xl font-bold text-slate-800">🔒 Dashboard Laporan Klinis Terpusat</h2>
-                    <p class="text-xs text-slate-500">Klik pada kartu nama siswa di bawah untuk membuka detail analisis psikososial.</p>
+                    <p class="text-xs text-slate-500">Klik pada kartu nama siswa di bawah untuk masuk ke halaman detail laporan psikososial.</p>
                 </div>
                 <button onclick="logout()" class="bg-rose-50 text-rose-600 hover:bg-rose-100 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer">
                     Keluar Admin
@@ -121,6 +121,20 @@
                 <button onclick="clearAllAdminData()" class="w-full border border-rose-200 text-rose-600 hover:bg-rose-50 font-semibold py-2.5 rounded-2xl text-xs transition cursor-pointer">
                     Hapus Seluruh Data Aktif 🗑️
                 </button>
+            </div>
+        </div>
+
+        <!-- HALAMAN KHUSUS DETAIL LAPORAN ANAK (FOKUS INDIVIDU) -->
+        <div id="admin-detail-screen" class="bg-white rounded-3xl shadow-xl p-6 md:p-8 hidden border border-slate-100 space-y-6">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-4">
+                <button onclick="backToAdminList()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center space-x-2">
+                    <span>← Kembali ke Daftar</span>
+                </button>
+                <span id="detail-header-title" class="text-sm font-bold text-indigo-900"></span>
+            </div>
+
+            <div id="detail-content-area" class="space-y-5">
+                <!-- Konten dinamis laporan anak -->
             </div>
         </div>
 
@@ -203,23 +217,20 @@
 
         let currentUser = { nama: "", kelas: "" };
         let currentAdminTab = 'active';
-        let activeCardId = null; // Menyimpan status kartu mana yang sedang dibuka
+        let isViewingDetail = false; // Status apakah sedang di halaman detail anak
 
         const loginScreen = document.getElementById('login-screen');
         const quizScreen = document.getElementById('quiz-screen');
         const resultScreen = document.getElementById('result-screen');
         const adminScreen = document.getElementById('admin-screen');
+        const adminDetailScreen = document.getElementById('admin-detail-screen');
         const userBadge = document.getElementById('user-badge');
         const headerLogoutBtn = document.getElementById('header-logout-btn');
 
-        // Pengaturan Tombol Kembali (Back) HP agar menutup kartu detail dulu sebelum keluar admin
+        // Navigasi Tombol Kembali HP agar kembali ke daftar kartu admin
         window.addEventListener('popstate', (event) => {
-            if (activeCardId) {
-                // Jika ada kartu detail yang terbuka, tutup kartunya saja
-                const detailDiv = document.getElementById(`detail_${activeCardId}`);
-                if (detailDiv) detailDiv.classList.add('hidden');
-                activeCardId = null;
-                // Cegah keluar halaman
+            if (isViewingDetail) {
+                backToAdminList();
                 history.pushState(null, '', window.location.href);
             }
         });
@@ -513,85 +524,35 @@
             container.innerHTML = '';
             filteredRecords.reverse().forEach((rec) => {
                 const folderBox = document.createElement('div');
-                folderBox.className = "bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden transition-all";
+                folderBox.className = "bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden transition-all hover:border-indigo-300";
                 
-                let analysisHtml = rec.clinicalAnalysis.map(c => `<li class="text-slate-700 pb-1">${c}</li>`).join('');
-                let conclusionsHtml = rec.generalConclusions.map(c => `<li class="text-slate-800 font-medium">${c}</li>`).join('');
-                let suggestionsHtml = rec.suggestions.map(s => `<li class="text-indigo-900">${s}</li>`).join('');
-
                 let archiveButtonText = rec.isArchived ? "📂 Pulihkan dari Arsip" : "📦 Arsipkan Data";
                 let archiveAction = rec.isArchived ? `unarchiveCard('${rec.folderName}')` : `archiveCard('${rec.folderName}')`;
-                let safeId = rec.folderName.replace(/[^a-zA-Z0-9]/g, '_');
+                let safeName = rec.folderName.replace(/'/g, "\\'");
 
                 folderBox.innerHTML = `
-                    <!-- HEADER KARTU (HANYA NAMA - KELAS SAJA DI LUAR) -->
-                    <div class="flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100 transition cursor-pointer border-b border-slate-100" onclick="toggleCardDetail('${safeId}')">
+                    <!-- HEADER KARTU (HANYA NAMA - KELAS SAJA) -->
+                    <div class="flex justify-between items-center p-4 bg-slate-50 hover:bg-indigo-50/50 transition cursor-pointer border-b border-slate-100" onclick="openAdminDetail('${safeName}')">
                         <div class="flex items-center space-x-3">
                             <span class="text-2xl">📁</span>
                             <div>
                                 <h3 class="font-bold text-slate-800 text-base">${rec.folderName}</h3>
-                                <span class="text-[10px] text-slate-400">Klik untuk melihat detail laporan 🔍</span>
+                                <span class="text-[10px] text-slate-400">Klik untuk buka halaman laporan 🔍</span>
                             </div>
                         </div>
                         <div class="flex items-center space-x-3" onclick="event.stopPropagation()">
                             <div class="relative">
-                                <button onclick="toggleDropdown(event, '${rec.folderName}')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-2 rounded-xl text-sm transition cursor-pointer" title="Menu Opsi">
+                                <button onclick="toggleDropdown(event, '${safeName}')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-2 rounded-xl text-sm transition cursor-pointer" title="Menu Opsi">
                                     ⋮
                                 </button>
-                                <div id="dropdown_${safeId}" class="hidden absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-1 text-xs">
+                                <div id="dropdown_${safeName.replace(/[^a-zA-Z0-9]/g, '_')}" class="hidden absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-1 text-xs">
                                     <button onclick="${archiveAction}" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-slate-700 font-medium flex items-center space-x-2 cursor-pointer">
                                         <span>${archiveButtonText}</span>
                                     </button>
-                                    <button onclick="deleteSpecificCard('${rec.folderName}')" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-rose-600 font-medium flex items-center space-x-2 border-t border-slate-100 cursor-pointer">
+                                    <button onclick="deleteSpecificCard('${safeName}')" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-rose-600 font-medium flex items-center space-x-2 border-t border-slate-100 cursor-pointer">
                                         <span>🗑️ Hapus Permanen</span>
                                     </button>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- KONTEN DETAIL (TANGGAL, INDEKS, & ANALISIS DI DALAM KARTU) -->
-                    <div id="detail_${safeId}" class="hidden p-5 space-y-4 bg-white border-t border-slate-100">
-                        <!-- Info Tanggal & Indeks Skor -->
-                        <div class="flex justify-between items-center bg-indigo-50/50 p-3 rounded-xl border border-indigo-100">
-                            <span class="text-xs text-slate-600">📅 Waktu Pengisian: <strong>${rec.tanggal}</strong></span>
-                            <span class="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-bold">Indeks Skor: ${rec.scoreIndex}%</span>
-                        </div>
-
-                        <!-- 1. Skor Aspek per Domain -->
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">1. Skor Aspek Psikososial (Maks. 40)</h4>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
-                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">Stres & Cemas: <strong>${rec.domainScores["Stres & Kecemasan"]}/40</strong></div>
-                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">Regulasi Emosi: <strong>${rec.domainScores["Regulasi Emosi"]}/40</strong></div>
-                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">Rentang Fokus: <strong>${rec.domainScores["Fokus & Konsentrasi"]}/40</strong></div>
-                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">Daya Juang/Resiliensi: <strong>${rec.domainScores["Daya Juang & Resiliensi"]}/40</strong></div>
-                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">Kemandirian: <strong>${rec.domainScores["Kemandirian & Disiplin"]}/40</strong></div>
-                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">Sosial & Pede: <strong>${rec.domainScores["Sosial & Kepercayaan Diri"]}/40</strong></div>
-                            </div>
-                        </div>
-
-                        <!-- 2. Analisis Klinis Mendalam per Domain -->
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2">
-                            <h4 class="font-bold text-slate-800 text-xs border-b pb-1.5 flex items-center">🔍 2. Analisis Klinis Mendalam per Domain</h4>
-                            <ul class="list-disc pl-4 space-y-2 text-xs leading-relaxed">
-                                ${analysisHtml}
-                            </ul>
-                        </div>
-
-                        <!-- 3. Kesimpulan Umum & Saran Intervensi -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                            <div class="bg-indigo-50/70 p-4 rounded-xl border border-indigo-100 space-y-1.5">
-                                <h4 class="font-bold text-indigo-900 border-b border-indigo-200/50 pb-1.5">📋 3. Kesimpulan Umum</h4>
-                                <ul class="list-disc pl-4 space-y-1.5 text-indigo-900 leading-relaxed">
-                                    ${conclusionsHtml}
-                                </ul>
-                            </div>
-                            <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-100 space-y-1.5">
-                                <h4 class="font-bold text-emerald-900 border-b border-emerald-200/50 pb-1.5">💡 4. Saran Intervensi Konkret</h4>
-                                <ul class="list-disc pl-4 space-y-1.5 text-emerald-900 leading-relaxed">
-                                    ${suggestionsHtml}
-                                </ul>
                             </div>
                         </div>
                     </div>
@@ -600,20 +561,77 @@
             });
         }
 
-        function toggleCardDetail(safeId) {
-            const detailDiv = document.getElementById(`detail_${safeId}`);
-            const isHidden = detailDiv.classList.contains('hidden');
-            
-            // Sembunyikan semua kartu lain dulu agar rapi
-            document.querySelectorAll("[id^='detail_']").forEach(el => el.classList.add('hidden'));
+        // Buka Halaman Detail Khusus Nama Anak
+        function openAdminDetail(folderName) {
+            let records = JSON.parse(localStorage.getItem('psikologi_proclinic60_folders')) || [];
+            let rec = records.find(r => r.folderName.toLowerCase() === folderName.toLowerCase());
+            if (!rec) return;
 
-            if (isHidden) {
-                detailDiv.classList.remove('hidden');
-                activeCardId = safeId;
-                history.pushState({ cardOpen: true }, '', window.location.href);
-            } else {
-                activeCardId = null;
-            }
+            isViewingDetail = true;
+            history.pushState({ detailOpen: true }, '', window.location.href);
+
+            document.getElementById('detail-header-title').innerText = `📄 Laporan Klinis: ${rec.folderName}`;
+
+            let analysisHtml = rec.clinicalAnalysis.map(c => `<li class="text-slate-700 pb-1">${c}</li>`).join('');
+            let conclusionsHtml = rec.generalConclusions.map(c => `<li class="text-slate-800 font-medium">${c}</li>`).join('');
+            let suggestionsHtml = rec.suggestions.map(s => `<li class="text-indigo-900">${s}</li>`).join('');
+
+            const contentArea = document.getElementById('detail-content-area');
+            contentArea.innerHTML = `
+                <!-- Info Tanggal & Indeks Skor -->
+                <div class="flex justify-between items-center bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
+                    <span class="text-xs text-slate-600">📅 Waktu Pengisian: <strong>${rec.tanggal}</strong></span>
+                    <span class="bg-indigo-600 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-xs">Indeks Skor: ${rec.scoreIndex}%</span>
+                </div>
+
+                <!-- 1. Skor Aspek per Domain -->
+                <div>
+                    <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">1. Skor Aspek Psikososial (Maks. 40)</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-[11px]">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Stres & Cemas: <strong>${rec.domainScores["Stres & Kecemasan"]}/40</strong></div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Regulasi Emosi: <strong>${rec.domainScores["Regulasi Emosi"]}/40</strong></div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Rentang Fokus: <strong>${rec.domainScores["Fokus & Konsentrasi"]}/40</strong></div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Daya Juang/Resiliensi: <strong>${rec.domainScores["Daya Juang & Resiliensi"]}/40</strong></div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Kemandirian: <strong>${rec.domainScores["Kemandirian & Disiplin"]}/40</strong></div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Sosial & Pede: <strong>${rec.domainScores["Sosial & Kepercayaan Diri"]}/40</strong></div>
+                    </div>
+                </div>
+
+                <!-- 2. Analisis Klinis Mendalam per Domain -->
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2">
+                    <h4 class="font-bold text-slate-800 text-xs border-b pb-2 flex items-center">🔍 2. Analisis Klinis Mendalam per Domain</h4>
+                    <ul class="list-disc pl-4 space-y-2 text-xs leading-relaxed">
+                        ${analysisHtml}
+                    </ul>
+                </div>
+
+                <!-- 3. Kesimpulan Umum & Saran Intervensi -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <div class="bg-indigo-50/70 p-5 rounded-2xl border border-indigo-100 space-y-2">
+                        <h4 class="font-bold text-indigo-900 border-b border-indigo-200/50 pb-2">📋 3. Kesimpulan Umum</h4>
+                        <ul class="list-disc pl-4 space-y-2 text-indigo-900 leading-relaxed">
+                            ${conclusionsHtml}
+                        </ul>
+                    </div>
+                    <div class="bg-emerald-50/70 p-5 rounded-2xl border border-emerald-100 space-y-2">
+                        <h4 class="font-bold text-emerald-900 border-b border-emerald-200/50 pb-2">💡 4. Saran Intervensi Konkret</h4>
+                        <ul class="list-disc pl-4 space-y-2 text-emerald-900 leading-relaxed">
+                            ${suggestionsHtml}
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+            adminScreen.classList.add('hidden');
+            adminDetailScreen.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Kembali ke Daftar Kartu Admin
+        function backToAdminList() {
+            isViewingDetail = false;
+            adminDetailScreen.classList.add('hidden');
+            adminScreen.classList.remove('hidden');
         }
 
         function toggleDropdown(event, folderName) {
@@ -684,6 +702,7 @@
             userBadge.classList.add('hidden');
             headerLogoutBtn.classList.add('hidden');
             
+            adminDetailScreen.classList.add('hidden');
             adminScreen.classList.add('hidden');
             resultScreen.classList.add('hidden');
             quizScreen.classList.add('hidden');
