@@ -61,7 +61,7 @@
             <div class="bg-indigo-900 text-white rounded-3xl p-6 shadow-md">
                 <h2 id="greeting-title" class="text-xl font-bold mb-1">Halo!</h2>
                 <p class="text-indigo-200 text-xs leading-relaxed">
-                    Kuesioner ini terdiri dari 60 pernyataan mendalam mengenai keseharianmu[cite: 6]. Baca baik-baik dan pilih jawaban yang paling jujur. Jawablah seluruhnya, lalu klik tombol **Kirim Jawaban** di bagian paling bawah[cite: 2, 6].
+                    Kuesioner ini terdiri dari 60 pernyataan mendalam mengenai keseharianmu. Baca baik-baik dan pilih jawaban yang paling jujur. Jawablah seluruhnya, lalu klik tombol **Kirim Jawaban** di bagian paling bawah.
                 </p>
             </div>
 
@@ -83,7 +83,7 @@
             <div class="text-6xl mb-3 animate-bounce">🏆</div>
             <h2 class="text-2xl font-bold text-slate-800 mb-2">Luar Biasa, Selesai!</h2>
             <p class="text-slate-600 text-sm mb-6 leading-relaxed">
-                Terima kasih sudah meluangkan waktu menjawab 60 pertanyaan ini dengan teliti dan jujur. Hasil asesmenmu sudah tersimpan rapi di sistem untuk ditinjau oleh orang tua atau gurumu[cite: 6].
+                Terima kasih sudah meluangkan waktu menjawab 60 pertanyaan ini dengan teliti dan jujur. Hasil asesmenmu sudah tersimpan rapi di sistem untuk ditinjau oleh orang tua atau gurumu.
             </p>
             <button onclick="logout()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-2xl transition shadow-lg shadow-indigo-100 cursor-pointer">
                 Selesai & Keluar 🚪
@@ -95,7 +95,7 @@
             <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
                 <div>
                     <h2 class="text-xl font-bold text-slate-800">🔒 Dashboard Laporan Klinis Terpusat</h2>
-                    <p class="text-xs text-slate-500">Klik pada kartu nama siswa di bawah untuk masuk ke halaman detail laporan psikososial[cite: 6].</p>
+                    <p class="text-xs text-slate-500">Klik pada kartu nama siswa di bawah untuk masuk ke halaman detail laporan psikososial.</p>
                 </div>
                 <button onclick="logout()" class="bg-rose-50 text-rose-600 hover:bg-rose-100 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer">
                     Keluar Admin
@@ -240,9 +240,21 @@
         const userBadge = document.getElementById('user-badge');
         const headerLogoutBtn = document.getElementById('header-logout-btn');
 
+        // Navigasi Tombol Kembali (Back) HP otomatis menutup detail laporan kembali ke daftar
         window.addEventListener('popstate', (event) => {
             if (isViewingDetail) {
-                backToAdminList(false);
+                isViewingDetail = false;
+                selectedChildName = null;
+                saveSession('admin');
+                adminDetailScreen.classList.add('hidden');
+                adminScreen.classList.remove('hidden');
+            } else {
+                let savedSession = JSON.parse(localStorage.getItem('proclinic_current_session'));
+                if (savedSession && savedSession.state === 'admin_detail') {
+                    saveSession('admin');
+                    adminDetailScreen.classList.add('hidden');
+                    adminScreen.classList.remove('hidden');
+                }
             }
         });
 
@@ -393,7 +405,7 @@
             let totalScore = 0;
             let maxScore = answers.length * 4;
 
-            let domainScores = {
+            let rawDomainScores = {
                 "Stres & Kecemasan": 0,
                 "Regulasi Emosi": 0,
                 "Fokus & Konsentrasi": 0,
@@ -402,12 +414,20 @@
                 "Sosial & Kepercayaan Diri": 0
             };
 
+            let domainMaxPoints = 40; // 10 soal x bobot max 4
+
             answers.forEach(a => {
                 totalScore += a.weight;
-                if(domainScores[a.domain] !== undefined) {
-                    domainScores[a.domain] += a.weight;
+                if(rawDomainScores[a.domain] !== undefined) {
+                    rawDomainScores[a.domain] += a.weight;
                 }
             });
+
+            // Konversi nilai tiap domain secara presisi ke skala 0 - 100
+            let domainScores100 = {};
+            for (let domain in rawDomainScores) {
+                domainScores100[domain] = Math.round((rawDomainScores[domain] / domainMaxPoints) * 100);
+            }
 
             let scoreIndex = Math.round((totalScore / maxScore) * 100);
 
@@ -416,66 +436,66 @@
             let suggestions = [];
             let generalConclusions = [];
 
-            let sScore = domainScores["Stres & Kecemasan"];
-            if (sScore >= 28) {
+            let sScore = domainScores100["Stres & Kecemasan"];
+            if (sScore >= 70) {
                 clinicalAnalysis.push("🔴 <strong>Stres & Kecemasan:</strong> Terdeteksi reaktivitas kecemasan tinggi. Anak mengalami beban psikosomatis atau tekanan ekspektasi yang cukup menguras energi mental.");
                 suggestions.push("Lakukan dialog terbuka tanpa menghakimi. Evaluasi ulang jadwal harian anak agar memiliki waktu rehat yang cukup.");
-            } else if (sScore >= 18) {
+            } else if (sScore >= 45) {
                 clinicalAnalysis.push("🟡 <strong>Stres & Kecemasan:</strong> Cukup adaptif namun sesekali merasakan tegang atau cemas menghadapi situasi tak terduga.");
                 suggestions.push("Berikan validasi saat anak mengeluh lelah, ajarkan teknik pernapasan perut (*deep breathing*).");
             } else {
                 clinicalAnalysis.push("🟢 <strong>Stres & Kecemasan:</strong> Stabil, tenang, dan mampu mengelola tekanan psikologis dengan sangat baik.");
             }
 
-            let eScore = domainScores["Regulasi Emosi"];
-            if (eScore >= 28) {
+            let eScore = domainScores100["Regulasi Emosi"];
+            if (eScore >= 70) {
                 clinicalAnalysis.push("🔴 <strong>Regulasi Emosi:</strong> Kontrol impuls rendah, emosi sangat reaktif, mudah meledak atau sensitif saat keinginan tertunda.");
                 suggestions.push("Terapkan *cooling down time* di tempat tenang saat anak mulai marah. Jadilah teladan ketenangan.");
-            } else if (eScore >= 18) {
+            } else if (eScore >= 45) {
                 clinicalAnalysis.push("🟡 <strong>Regulasi Emosi:</strong> Fluktuasi emosi sedang, kadang menunjukkan sikap cemberut jika menemui ketidaksesuaian.");
                 suggestions.push("Latih anak mengenali nama perasaannya dan beri apresiasi saat ia berhasil sabar.");
             } else {
                 clinicalAnalysis.push("🟢 <strong>Regulasi Emosi:</strong> Stabilitas dan kontrol emosi matang serta adaptif untuk usianya.");
             }
 
-            let fScore = domainScores["Fokus & Konsentrasi"];
-            if (fScore >= 28) {
+            let fScore = domainScores100["Fokus & Konsentrasi"];
+            if (fScore >= 70) {
                 clinicalAnalysis.push("🔴 <strong>Rentang Fokus:</strong> Atensi sangat mudah terdistraksi, kesulitan mempertahankan konsentrasi dalam durasi standar.");
                 suggestions.push("Gunakan metode belajar mikro (fokus 10-15 menit diselingi gerak fisik). Jauhkan mainan dari meja belajar.");
-            } else if (fScore >= 18) {
+            } else if (fScore >= 45) {
                 clinicalAnalysis.push("🟡 <strong>Rentang Fokus:</strong> Atensi fluktuatif, mudah goyah jika materi mulai membosankan.");
                 suggestions.push("Gunakan instruksi bertahap satu perintah dalam satu waktu serta buatkan checklist tugas visual.");
             } else {
                 clinicalAnalysis.push("🟢 <strong>Rentang Fokus:</strong> Konsentrasi dan ketahanan atensi prima serta sangat baik.");
             }
 
-            let rScore = domainScores["Daya Juang & Resiliensi"];
-            if (rScore >= 28) {
+            let rScore = domainScores100["Daya Juang & Resiliensi"];
+            if (rScore >= 70) {
                 clinicalAnalysis.push("🔴 <strong>Daya Juang / Resiliensi:</strong> Cepat putus asa, toleransi frustrasi rendah, mudah menyalahkan diri saat menemui kesulitan.");
                 suggestions.push("Terapkan *growth mindset*: puji proses usaha dan ketekunannya, bukan hasil akhirnya.");
-            } else if (rScore >= 18) {
+            } else if (rScore >= 45) {
                 clinicalAnalysis.push("🟡 <strong>Daya Juang / Resiliensi:</strong> Butuh dorongan eksternal agar tidak mudah ciut ketika menemui soal sulit.");
                 suggestions.push("Dampingi saat ia menemui jalan buntu, bantu memecah masalah besar menjadi bagian kecil.");
             } else {
                 clinicalAnalysis.push("🟢 <strong>Daya Juang / Resiliensi:</strong> Memiliki mental pantang menyerah dan resiliensi yang luar biasa.");
             }
 
-            let kScore = domainScores["Kemandirian & Disiplin"];
-            if (kScore >= 28) {
+            let kScore = domainScores100["Kemandirian & Disiplin"];
+            if (kScore >= 70) {
                 clinicalAnalysis.push("🔴 <strong>Kemandirian & Disiplin:</strong> Tanggung jawab rutinitas harian masih sangat bergantung penuh pada instruksi orang dewasa.");
                 suggestions.push("Berikan tanggung jawab kecil yang konsisten (merapikan meja) dan biarkan ia belajar dari konsekuensi kecil.");
-            } else if (kScore >= 18) {
+            } else if (kScore >= 45) {
                 clinicalAnalysis.push("🟡 <strong>Kemandirian & Disiplin:</strong> Mandiri jika sudah diingatkan secara teratur atau dibuatkan jadwal rutin.");
                 suggestions.push("Kurangi frekuensi pengingat verbal secara perlahan agar ia terbiasa mandiri.");
             } else {
                 clinicalAnalysis.push("🟢 <strong>Kemandirian & Disiplin:</strong> Tingkat kemandirian dan kedisiplinan personal sangat tinggi.");
             }
 
-            let sosScore = domainScores["Sosial & Kepercayaan Diri"];
-            if (sosScore >= 28) {
+            let sosScore = domainScores100["Sosial & Kepercayaan Diri"];
+            if (sosScore >= 70) {
                 clinicalAnalysis.push("🔴 <strong>Sosial & Kepercayaan Diri:</strong> Terdapat indikasi rasa minder yang kuat, kecemasan performansi, atau menarik diri.");
                 suggestions.push("Fasilitasi interaksi dalam kelompok kecil yang aman dan suportif. Jangan membandingkan anak.");
-            } else if (sosScore >= 18) {
+            } else if (sosScore >= 45) {
                 clinicalAnalysis.push("🟡 <strong>Sosial & Kepercayaan Diri:</strong> Cenderung hati-hati atau butuh waktu adaptasi lebih sebelum tampil di depan umum.");
                 suggestions.push("Berikan ruang aman di rumah untuk berlatih serta apresiasi keberanian kecilnya.");
             } else {
@@ -503,7 +523,7 @@
                 kelas: currentUser.kelas,
                 folderName: `${currentUser.nama} - ${currentUser.kelas}`,
                 scoreIndex: scoreIndex,
-                domainScores: domainScores,
+                domainScores: domainScores100,
                 generalConclusions: generalConclusions,
                 clinicalAnalysis: clinicalAnalysis,
                 attentionItems: attentionItems,
@@ -520,7 +540,7 @@
 
         function switchAdminTab(tab) {
             currentAdminTab = tab;
-            currentPage = 1; // Reset ke halaman 1 saat pindah tab
+            currentPage = 1;
             const btnActive = document.getElementById('tab-active');
             const btnArchived = document.getElementById('tab-archived');
             const actionFooter = document.getElementById('admin-action-footer');
@@ -550,7 +570,6 @@
                 return;
             }
 
-            // Hitung Pagination (Maks 10 per halaman)
             let totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
             if (currentPage > totalPages) currentPage = totalPages;
             if (currentPage < 1) currentPage = 1;
@@ -598,7 +617,6 @@
                 container.appendChild(folderBox);
             });
 
-            // Render Navigasi Tombol Halaman (Pagination)
             if (totalPages > 1) {
                 paginationContainer.innerHTML = `
                     <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-300 cursor-not-allowed"' : 'class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 cursor-pointer"'}>
@@ -619,7 +637,6 @@
             loadAdminFolders();
         }
 
-        // Buka Halaman Detail Khusus Nama Anak
         function openAdminDetail(folderName, pushState = true) {
             let records = JSON.parse(localStorage.getItem('psikologi_proclinic60_folders')) || [];
             let rec = records.find(r => r.folderName.toLowerCase() === folderName.toLowerCase());
@@ -648,16 +665,16 @@
                     <span class="text-xs text-indigo-900 font-bold">Nama Anak: <span class="underline">${rec.folderName}</span></span>
                 </div>
 
-                <!-- 1. Skor Aspek per Domain -->
+                <!-- 1. Skor Aspek per Domain (Skala Maks 100) -->
                 <div>
-                    <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">1. Skor Aspek Psikososial (Maks. 40)</h4>
+                    <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">1. Skor Aspek Psikososial (Maks. 100)</h4>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-[11px]">
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Stres & Cemas: <strong class="text-slate-900">${rec.domainScores["Stres & Kecemasan"]}/40</strong></div>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Regulasi Emosi: <strong class="text-slate-900">${rec.domainScores["Regulasi Emosi"]}/40</strong></div>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Rentang Fokus: <strong class="text-slate-900">${rec.domainScores["Fokus & Konsentrasi"]}/40</strong></div>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Daya Juang/Resiliensi: <strong class="text-slate-900">${rec.domainScores["Daya Juang & Resiliensi"]}/40</strong></div>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Kemandirian: <strong class="text-slate-900">${rec.domainScores["Kemandirian & Disiplin"]}/40</strong></div>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Sosial & Pede: <strong class="text-slate-900">${rec.domainScores["Sosial & Kepercayaan Diri"]}/40</strong></div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Stres & Cemas: <strong class="text-slate-900">${rec.domainScores["Stres & Kecemasan"]}/100</strong></div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Regulasi Emosi: <strong class="text-slate-900">${rec.domainScores["Regulasi Emosi"]}/100</strong></div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Rentang Fokus: <strong class="text-slate-900">${rec.domainScores["Fokus & Konsentrasi"]}/100</strong></div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Daya Juang/Resiliensi: <strong class="text-slate-900">${rec.domainScores["Daya Juang & Resiliensi"]}/100</strong></div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Kemandirian: <strong class="text-slate-900">${rec.domainScores["Kemandirian & Disiplin"]}/100</strong></div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">Sosial & Pede: <strong class="text-slate-900">${rec.domainScores["Sosial & Kepercayaan Diri"]}/100</strong></div>
                     </div>
                 </div>
 
@@ -689,18 +706,6 @@
             adminScreen.classList.add('hidden');
             adminDetailScreen.classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Kembali ke Daftar Kartu Admin
-        function backToAdminList(pushState = true) {
-            isViewingDetail = false;
-            selectedChildName = null;
-            saveSession('admin');
-            adminDetailScreen.classList.add('hidden');
-            adminScreen.classList.remove('hidden');
-            if (pushState) {
-                history.pushState(null, '', window.location.href);
-            }
         }
 
         function toggleDropdown(event, safeId) {
