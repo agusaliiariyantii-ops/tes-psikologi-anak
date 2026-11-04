@@ -248,14 +248,6 @@
         const userBadge = document.getElementById('user-badge');
         const headerLogoutBtn = document.getElementById('header-logout-btn');
 
-        // Sinkronisasi tombol back HP / Browser
-        window.addEventListener('popstate', (event) => {
-            const savedSession = JSON.parse(localStorage.getItem('proclinic_current_session'));
-            if (savedSession && savedSession.state === 'admin_detail') {
-                backToAdminList(false);
-            }
-        });
-
         window.addEventListener('DOMContentLoaded', () => {
             if (!history.state) {
                 history.replaceState({ page: 'root' }, '');
@@ -707,8 +699,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Kembali ke Daftar Kartu Admin via Tombol Khusus di Bawah Nama
-        function backToAdminList(pushState = true) {
+        function backToAdminList() {
             isViewingDetail = false;
             selectedChildName = null;
             saveSession('admin');
